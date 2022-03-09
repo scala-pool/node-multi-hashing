@@ -4,28 +4,35 @@
  * Implementation by tpruvot@github Jan 2018
  * timestamp integration for Veil by random-zebra@github Nov 2018
  */
-#include "miner.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <sha3/sph_blake.h>
-#include <sha3/sph_bmw.h>
-#include <sha3/sph_groestl.h>
-#include <sha3/sph_jh.h>
-#include <sha3/sph_keccak.h>
-#include <sha3/sph_skein.h>
-#include <sha3/sph_luffa.h>
-#include <sha3/sph_cubehash.h>
-#include <sha3/sph_shavite.h>
-#include <sha3/sph_simd.h>
-#include <sha3/sph_echo.h>
-#include <sha3/sph_hamsi.h>
-#include <sha3/sph_fugue.h>
-#include <sha3/sph_shabal.h>
-#include <sha3/sph_whirlpool.h>
-#include <sha3/sph_sha2.h>
+#include "sha3/sph_blake.h"
+#include "sha3/sph_bmw.h"
+#include "sha3/sph_groestl.h"
+#include "sha3/sph_jh.h"
+#include "sha3/sph_keccak.h"
+#include "sha3/sph_skein.h"
+#include "sha3/sph_luffa.h"
+#include "sha3/sph_cubehash.h"
+#include "sha3/sph_shavite.h"
+#include "sha3/sph_simd.h"
+#include "sha3/sph_echo.h"
+#include "sha3/sph_hamsi.h"
+#include "sha3/sph_fugue.h"
+#include "sha3/sph_shabal.h"
+#include "sha3/sph_whirlpool.h"
+#include "sha3/sph_sha2.h"
+
+#if defined(_MSC_VER)
+#define _ALIGN __declspec(align(32))
+#elif defined(__GNUC__)
+#define _ALIGN __attribute__ ((aligned(16)))
+#else
+#define _ALIGN
+#endif
+
 
 enum Algo {
     BLAKE = 0,
@@ -67,7 +74,7 @@ static void getAlgoString(const uint8_t* nTimeX16r, char *output)
 
 void x16rt_hash(void* output, const void* input)
 {
-    uint32_t _ALIGN(128) hash[64/4];
+    uint32_t hash[16];
 
     sph_blake512_context     ctx_blake;
     sph_bmw512_context       ctx_bmw;
